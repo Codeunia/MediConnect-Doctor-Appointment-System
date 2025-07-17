@@ -1,31 +1,34 @@
+// src/pages/Home.jsx
 import React from 'react';
-import { Link } from 'react-router-dom';
+import DoctorCard from '../components/DoctorCard';
 
-const Home = () => {
+export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#EEF5FF] to-[#C6DCBA] flex flex-col items-center justify-center text-center px-4">
-      <h1 className="text-5xl md:text-6xl font-bold text-[#1D267D] mb-6">
-        Welcome to MediConnect
-      </h1>
-      <p className="text-lg md:text-xl text-gray-700 max-w-2xl mb-8">
-        Your trusted platform for booking doctor appointments, managing your medical schedule, and accessing health services — anytime, anywhere.
-      </p>
-      <div className="space-x-4">
-        <Link
-          to="/appointments"
-          className="bg-[#0C134F] hover:bg-[#1D267D] text-white font-semibold px-6 py-3 rounded-full transition duration-300"
-        >
+    <div className="px-4 sm:px-8 md:px-16 py-12 bg-white text-gray-800">
+      <section className="text-center mb-12">
+        <h1 className="text-4xl font-bold text-green-600 mb-4">MediConnect</h1>
+        <p className="text-lg max-w-2xl mx-auto">
+          Book Appointments, Anytime, Anywhere. Connect with top doctors and healthcare providers near you.
+        </p>
+        <button className="mt-6 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition">
           Book Appointment
-        </Link>
-        <Link
-          to="/about"
-          className="bg-white border border-[#1D267D] text-[#1D267D] hover:bg-[#EEF5FF] font-semibold px-6 py-3 rounded-full transition duration-300"
-        >
-          Learn More
-        </Link>
-      </div>
+        </button>
+      </section>
+
+      <section className="grid md:grid-cols-3 gap-8 text-center">
+        <div className="bg-green-50 p-6 rounded-xl shadow hover:shadow-md transition">
+          <h2 className="text-xl font-semibold text-blue-700">Verified Doctors</h2>
+          <p className="mt-2 text-sm">Certified and trusted professionals only.</p>
+        </div>
+        <div className="bg-green-50 p-6 rounded-xl shadow hover:shadow-md transition">
+          <h2 className="text-xl font-semibold text-blue-700">Real-time Scheduling</h2>
+          <p className="mt-2 text-sm">See and book slots instantly.</p>
+        </div>
+        <div className="bg-green-50 p-6 rounded-xl shadow hover:shadow-md transition">
+          <h2 className="text-xl font-semibold text-blue-700">Role-based Dashboards</h2>
+          <p className="mt-2 text-sm">Separate portals for doctors, patients, and admins.</p>
+        </div>
+      </section>
     </div>
   );
-};
-
-export default Home;
+}

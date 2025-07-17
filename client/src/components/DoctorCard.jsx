@@ -1,18 +1,12 @@
+// src/components/DoctorCard.jsx
 import React from 'react';
 
-const DoctorCard = ({ name, specialty, location, image }) => {
+export default function DoctorCard({ name, specialty, rating }) {
   return (
-    <div className="bg-white shadow-md rounded-2xl p-6 w-full max-w-sm hover:shadow-xl transition duration-300">
-      <img
-        src={image}
-        alt={name}
-        className="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-[#1D267D]"
-      />
-      <h3 className="text-xl font-semibold text-[#1D267D] text-center">{name}</h3>
-      <p className="text-sm text-gray-600 text-center">{specialty}</p>
-      <p className="text-sm text-gray-500 text-center">{location}</p>
+    <div className="bg-white border rounded-xl p-4 shadow-sm hover:shadow-lg transition">
+      <h3 className="text-lg font-bold text-green-700">{name}</h3>
+      <p className="text-sm text-gray-600">{specialty}</p>
+      <p className="text-sm mt-1 text-yellow-500">⭐ {rating}</p>
     </div>
   );
-};
-
-export default DoctorCard;
+}

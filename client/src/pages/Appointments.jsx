@@ -1,105 +1,117 @@
+// src/pages/Appointments.jsx
 import React, { useState } from 'react';
 
-const Appointments = () => {
-  const [formData, setFormData] = useState({
-    name: '',
+const doctors = [
+  { id: 1, name: 'Dr. A. Sharma – Cardiologist' },
+  { id: 2, name: 'Dr. R. Mehta – Pediatrician' },
+  { id: 3, name: 'Dr. S. Gupta – Dermatologist' },
+];
+
+export default function Appointments() {
+  const [form, setForm] = useState({
     doctor: '',
     date: '',
     time: '',
+    reason: '',
   });
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert(`Appointment booked for ${formData.name} with Dr. ${formData.doctor}`);
-    setFormData({ name: '', doctor: '', date: '', time: '' });
+    if (!form.doctor || !form.date || !form.time || !form.reason) {
+      setError('Please fill in all the fields.');
+      setMessage('');
+      return;
+    }
+    setError('');
+    setMessage('✅ Appointment successfully booked!');
+    // TODO: Send form data to backend
   };
 
   return (
-    <div className="min-h-screen bg-[#F3F8FF] flex items-center justify-center px-6 py-12">
-      <div className="bg-white p-10 rounded-xl shadow-lg max-w-2xl w-full">
-        <h2 className="text-3xl font-bold text-[#1D267D] mb-6 text-center">
-          Book an Appointment
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-              Your Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1D267D]"
-            />
-          </div>
+    <div className="bg-white min-h-screen flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-xl p-8 rounded-xl shadow-lg border border-green-100 bg-green-50">
+        <h2 className="text-2xl font-bold text-green-700 mb-6 text-center">Book an Appointment</h2>
 
+        {error && (
+          <p className="text-red-600 bg-red-50 border border-red-200 px-4 py-2 mb-4 rounded text-sm text-center">
+            {error}
+          </p>
+        )}
+
+        {message && (
+          <p className="text-green-700 bg-green-100 border border-green-300 px-4 py-2 mb-4 rounded text-sm text-center">
+            {message}
+          </p>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="doctor" className="block text-sm font-medium text-gray-700 mb-1">
-              Choose Doctor
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Choose Doctor</label>
             <select
-              id="doctor"
               name="doctor"
-              value={formData.doctor}
+              value={form.doctor}
               onChange={handleChange}
-              required
-              className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1D267D]"
+              className="w-full border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-green-500"
             >
-              <option value="">Select Doctor</option>
-              <option value="Rahul Mehta">Dr. Rahul Mehta (Cardiologist)</option>
-              <option value="Sana Iqbal">Dr. Sana Iqbal (Dermatologist)</option>
-              <option value="Arun Patel">Dr. Arun Patel (General Physician)</option>
+              <option value="">-- Select Doctor --</option>
+              {doctors.map((doc) => (
+                <option key={doc.id} value={doc.name}>
+                  {doc.name}
+                </option>
+              ))}
             </select>
           </div>
 
-          <div className="flex gap-4">
-            <div className="w-1/2">
-              <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
-                Date
-              </label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
               <input
                 type="date"
-                id="date"
                 name="date"
-                value={formData.date}
+                value={form.date}
                 onChange={handleChange}
-                required
-                className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1D267D]"
+                className="w-full border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-green-500"
               />
             </div>
-            <div className="w-1/2">
-              <label htmlFor="time" className="block text-sm font-medium text-gray-700 mb-1">
-                Time
-              </label>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Time</label>
               <input
                 type="time"
-                id="time"
                 name="time"
-                value={formData.time}
+                value={form.time}
                 onChange={handleChange}
-                required
-                className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1D267D]"
+                className="w-full border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-green-500"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Appointment</label>
+            <textarea
+              name="reason"
+              rows={3}
+              value={form.reason}
+              onChange={handleChange}
+              placeholder="e.g. Annual checkup, chest pain, skin rash..."
+              className="w-full border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-green-500"
+            />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-[#0C134F] hover:bg-[#1D267D] text-white font-semibold px-6 py-3 rounded-full transition duration-300"
+            className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition"
           >
-            Confirm Appointment
+            Confirm Booking
           </button>
         </form>
       </div>
     </div>
   );
-};
-
-export default Appointments;
+}
