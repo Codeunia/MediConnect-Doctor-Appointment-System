@@ -1,8 +1,11 @@
 // src/pages/Home.jsx
 import React from 'react';
+import { useNavigate } from 'react-router-dom'; // ✅ import useNavigate
 import DoctorCard from '../components/DoctorCard';
 
 export default function Home() {
+  const navigate = useNavigate(); // ✅ initialize navigate
+
   return (
     <div className="px-4 sm:px-8 md:px-16 py-12 bg-white text-gray-800">
       <section className="text-center mb-12">
@@ -10,9 +13,23 @@ export default function Home() {
         <p className="text-lg max-w-2xl mx-auto">
           Book Appointments, Anytime, Anywhere. Connect with top doctors and healthcare providers near you.
         </p>
-        <button className="mt-6 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition">
-          Book Appointment
-        </button>
+
+        {/* Buttons */}
+        <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
+          <button
+            onClick={() => navigate('/appointments')}
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition"
+          >
+            Book Appointment
+          </button>
+
+          <button
+            onClick={() => navigate('/my-bookings')}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition"
+          >
+            My Bookings
+          </button>
+        </div>
       </section>
 
       <section className="grid md:grid-cols-3 gap-8 text-center">
