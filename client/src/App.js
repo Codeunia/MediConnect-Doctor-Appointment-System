@@ -11,7 +11,7 @@ import Contact from './pages/Contact';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Appointments from './pages/Appointments'; // ✅ Import Appointments
-
+import DoctorDashboard from './pages/DoctorDashboard';
 function App() {
   return (
     <Router>
@@ -27,6 +27,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/appointments" element={<Appointments />} /> {/* ✅ Added */}
             <Route path="/my-bookings" element={<MyBookings />} />
+            <Route path="/doctor-dashboard" element={<DoctorDashboard />} /> 
           </Routes>
         </main>
 
