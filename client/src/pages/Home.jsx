@@ -1,11 +1,9 @@
 // src/pages/Home.jsx
 import React from 'react';
-import { useNavigate } from 'react-router-dom'; // ✅ import useNavigate
+import { useNavigate } from 'react-router-dom'; 
 import DoctorCard from '../components/DoctorCard';
-
 export default function Home() {
-  const navigate = useNavigate(); // ✅ initialize navigate
-
+  const navigate = useNavigate(); 
   return (
     <div className="px-4 sm:px-8 md:px-16 py-12 bg-white text-gray-800">
       <section className="text-center mb-12">
@@ -31,7 +29,6 @@ export default function Home() {
           </button>
         </div>
       </section>
-
       <section className="grid md:grid-cols-3 gap-8 text-center">
         <div className="bg-green-50 p-6 rounded-xl shadow hover:shadow-md transition">
           <h2 className="text-xl font-semibold text-blue-700">Verified Doctors</h2>

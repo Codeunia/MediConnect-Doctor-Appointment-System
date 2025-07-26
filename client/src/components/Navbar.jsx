@@ -1,7 +1,6 @@
 // src/components/Navbar.jsx
 import React from "react";
 import { Link } from "react-router-dom";
-
 export default function Navbar() {
   return (
     <header className="bg-white shadow sticky top-0 z-50">

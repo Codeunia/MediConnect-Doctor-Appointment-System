@@ -1,5 +1,4 @@
 import React from 'react';
-
 const DoctorDashboard = () => {
   const appointments = [
     {

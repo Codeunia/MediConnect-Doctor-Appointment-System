@@ -1,6 +1,5 @@
 // src/components/DoctorCard.jsx
 import React from 'react';
-
 export default function DoctorCard({ name, specialty, rating }) {
   return (
     <div className="bg-white border rounded-xl p-4 shadow-sm hover:shadow-lg transition">

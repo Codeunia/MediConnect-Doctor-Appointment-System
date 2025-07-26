@@ -1,6 +1,5 @@
 // src/pages/About.jsx
 import React from 'react';
-
 export default function About() {
   return (
     <div className="min-h-screen bg-green-50 px-6 py-12 text-gray-800">

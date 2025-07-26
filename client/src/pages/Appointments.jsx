@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-
 const locationWiseDoctors = {
   Hyderabad: [
     { id: 1, name: 'Dr. A. Sharma', specialty: 'Cardiologist', rating: null },

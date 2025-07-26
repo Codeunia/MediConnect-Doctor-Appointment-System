@@ -1,7 +1,6 @@
 // src/pages/Login.jsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-
 export default function Login() {
   const [error, setError] = useState('');
 
@@ -15,7 +14,6 @@ export default function Login() {
       setError('');
     }
   };
-
   return (
     <div className="min-h-screen bg-green-50 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-md p-8 border border-green-100">

@@ -1,6 +1,5 @@
 // src/components/Footer.jsx
 import React from 'react';
-
 export default function Footer() {
   return (
     <footer className="bg-green-50 text-gray-700 py-6 mt-12 border-t border-gray-200">
