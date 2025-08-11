@@ -1,19 +1,37 @@
 // src/pages/Login.jsx
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-export default function Login() {
-  const [error, setError] = useState('');
+import { Link, useNavigate } from 'react-router-dom';
+import API from '../api/axios'; // axios instance pointing to backend
 
-  const handleLogin = (e) => {
+export default function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Example login logic
-    const isValid = true;
-    if (!isValid) {
-      setError('Invalid email or password. Please try again.');
-    } else {
+    try {
+      const { data } = await API.post('/api/auth/login', { email, password });
+
+      // Store token in localStorage
+      localStorage.setItem('token', data.token);
+
       setError('');
+
+      // Redirect based on role
+      if (data.user.role === 'admin') {
+        navigate('/admin');
+      } else if (data.user.role === 'doctor') {
+        navigate('/doctor');
+      } else {
+        navigate('/patient');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Login failed. Please try again.');
     }
   };
+
   return (
     <div className="min-h-screen bg-green-50 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-md p-8 border border-green-100">
@@ -30,6 +48,8 @@ export default function Login() {
             <label className="block text-sm font-medium text-green-800 mb-1">Email</label>
             <input
               type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-400 outline-none"
               placeholder="you@example.com"
@@ -40,6 +60,8 @@ export default function Login() {
             <label className="block text-sm font-medium text-green-800 mb-1">Password</label>
             <input
               type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-400 outline-none"
               placeholder="Enter your password"
