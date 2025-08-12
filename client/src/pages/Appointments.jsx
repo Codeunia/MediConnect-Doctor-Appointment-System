@@ -1,74 +1,69 @@
-import React, { useState } from 'react';
-const locationWiseDoctors = {
-  Hyderabad: [
-    { id: 1, name: 'Dr. A. Sharma', specialty: 'Cardiologist', rating: null },
-    { id: 2, name: 'Dr. R. Rao', specialty: 'Orthopedic', rating: 4.2 },
-  ],
-  Delhi: [
-    { id: 3, name: 'Dr. K. Mehta', specialty: 'Dermatologist', rating: 4.0 },
-    { id: 4, name: 'Dr. S. Kapoor', specialty: 'Neurologist', rating: null },
-  ],
-  Mumbai: [
-    { id: 5, name: 'Dr. L. Singh', specialty: 'General Physician', rating: 3.8 },
-    { id: 6, name: 'Dr. Z. Khan', specialty: 'Psychiatrist', rating: 4.5 },
-  ],
-  Chennai: [
-    { id: 7, name: 'Dr. T. Rajan', specialty: 'ENT', rating: null },
-  ],
-  Bangalore: [
-    { id: 8, name: 'Dr. V. Nair', specialty: 'Pulmonologist', rating: 4.6 },
-  ],
-};
+// src/pages/Appointments.jsx
+import React, { useState, useEffect } from 'react';
+import API from '../api/axios';
 
 const generateTimeSlots = () => {
   const slots = [];
-  const start = 10;
-  const end = 17;
+  const start = 9; // 9 AM
+  const end = 17; // 5 PM
   for (let hour = start; hour < end; hour++) {
-    slots.push(`${hour}:00`);
-    slots.push(`${hour}:30`);
+    slots.push(`${String(hour).padStart(2, '0')}:00`);
+    slots.push(`${String(hour).padStart(2, '0')}:30`);
   }
-  slots.push(`${end}:00`);
   return slots;
 };
 
 export default function Appointments() {
+  const [doctors, setDoctors] = useState([]);
   const [form, setForm] = useState({
-    location: '',
-    doctor: '',
+    doctor: '', // This will now store the doctor's ID
     date: '',
     time: '',
-    reason: '',
   });
 
-  const [feedback, setFeedback] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
-  const doctors = form.location ? locationWiseDoctors[form.location] : [];
+  // Fetch doctors from the backend when the component mounts
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const { data } = await API.get('/api/doctors');
+        setDoctors(data);
+      } catch (err) {
+        setError('Could not fetch doctors. Please try again later.');
+        console.error(err);
+      }
+    };
+    fetchDoctors();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    // Reset doctor field when location changes
-    if (name === 'location') {
-      setForm({ ...form, location: value, doctor: '' });
-    } else {
-      setForm({ ...form, [name]: value });
-    }
+    setForm({ ...form, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const { location, doctor, date, time, reason } = form;
-    if (!location || !doctor || !date || !time || !reason) {
+    const { doctor, date, time } = form;
+    if (!doctor || !date || !time) {
       setError('Please fill in all the fields.');
       setMessage('');
       return;
     }
     setError('');
-    setMessage('✅ Appointment successfully booked!');
-    // TODO: Save to backend
+    setMessage('');
+
+    try {
+      await API.post('/api/bookings', {
+        doctor, // The doctor's ID
+        date,
+      });
+      setMessage('✅ Appointment successfully booked!');
+      setForm({ doctor: '', date: '', time: '' }); // Reset form
+    } catch (err) {
+      setError(err.response?.data?.message || 'Booking failed. Please check the details and try again.');
+    }
   };
 
   return (
@@ -88,43 +83,23 @@ export default function Appointments() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Location Selection */}
+          {/* Doctor Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Select Location</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Choose Doctor</label>
             <select
-              name="location"
-              value={form.location}
+              name="doctor"
+              value={form.doctor}
               onChange={handleChange}
               className="w-full border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-green-500"
             >
-              <option value="">-- Choose Location --</option>
-              {Object.keys(locationWiseDoctors).map((loc) => (
-                <option key={loc} value={loc}>
-                  {loc}
+              <option value="">-- Select Doctor --</option>
+              {doctors.map((doc) => (
+                <option key={doc._id} value={doc._id}>
+                  Dr. {doc.name} – {doc.specialty}
                 </option>
               ))}
             </select>
           </div>
-
-          {/* Doctor Selection (filtered by location) */}
-          {form.location && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Choose Doctor</label>
-              <select
-                name="doctor"
-                value={form.doctor}
-                onChange={handleChange}
-                className="w-full border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-green-500"
-              >
-                <option value="">-- Select Doctor --</option>
-                {doctors.map((doc) => (
-                  <option key={doc.id} value={doc.name}>
-                    {doc.name} – {doc.specialty} {doc.rating ? `⭐ ${doc.rating}` : '🆕 New'}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
 
           {/* Date and Time Slot */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -135,6 +110,7 @@ export default function Appointments() {
                 name="date"
                 value={form.date}
                 onChange={handleChange}
+                min={new Date().toISOString().split('T')[0]} // Prevent booking past dates
                 className="w-full border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-green-500"
               />
             </div>
@@ -157,36 +133,9 @@ export default function Appointments() {
             </div>
           </div>
 
-          {/* Reason */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Appointment</label>
-            <textarea
-              name="reason"
-              rows={3}
-              value={form.reason}
-              onChange={handleChange}
-              placeholder="e.g. Chest pain, fever, anxiety..."
-              className="w-full border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-green-500"
-            />
-          </div>
-
-          {/* Optional Feedback After Booking */}
-          {message && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Feedback (optional)</label>
-              <textarea
-                rows={2}
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-                placeholder="How was your experience?"
-                className="w-full border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-green-500"
-              />
-            </div>
-          )}
-
           <button
             type="submit"
-            className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition"
+            className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition"
           >
             Confirm Booking
           </button>

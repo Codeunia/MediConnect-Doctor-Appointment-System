@@ -1,131 +1,78 @@
 // src/pages/MyBookings.jsx
-import React, { useState, useEffect } from 'react';
-
-const dummyBookings = [
-  {
-    id: 1,
-    doctor: 'Dr. Neha Sharma',
-    location: 'Delhi',
-    date: '2025-07-20',
-    time: '11:30 AM',
-    status: 'Confirmed',
-    editable: true,
-    reason: 'Regular check-up',
-  },
-  {
-    id: 2,
-    doctor: 'Dr. Ajay Mehta',
-    location: 'Hyderabad',
-    date: '2025-07-10',
-    time: '2:00 PM',
-    status: 'Completed',
-    editable: false,
-    reason: 'Fever and cold',
-  },
-];
+import React, { useState, useEffect, useContext } from 'react';
+import API from '../api/axios';
+import { AuthContext } from '../context/AuthContext';
 
 export default function MyBookings() {
   const [bookings, setBookings] = useState([]);
-  const [editingId, setEditingId] = useState(null);
-  const [formData, setFormData] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
-    setBookings(dummyBookings);
-  }, []);
+    const fetchBookings = async () => {
+      if (!user) return;
+      try {
+        setLoading(true);
+        setError('');
+        const upcomingRes = await API.get('/api/bookings/upcoming');
+        const previousRes = await API.get('/api/bookings/previous');
+        
+        const allBookings = [
+          ...upcomingRes.data,
+          ...previousRes.data,
+        ].sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort by most recent
 
-  const handleEdit = (booking) => {
-    setEditingId(booking.id);
-    setFormData({ ...booking });
-  };
+        setBookings(allBookings);
+      } catch (err) {
+        setError('Failed to fetch your bookings. Please try again later.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleChange = (e) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+    fetchBookings();
+  }, [user]);
 
-  const handleSave = () => {
-    const updated = bookings.map(b =>
-      b.id === editingId ? { ...b, ...formData } : b
-    );
-    setBookings(updated);
-    setEditingId(null);
-  };
+  if (loading) {
+    return <div className="text-center py-10">Loading your bookings...</div>;
+  }
 
-  const isPast = (date) => new Date(date) < new Date();
+  if (error) {
+    return <div className="text-center py-10 text-red-600">{error}</div>;
+  }
 
   return (
     <div className="px-4 sm:px-8 md:px-16 py-12 bg-white text-gray-800">
-      <h1 className="text-2xl font-bold text-green-700 mb-6">My Bookings</h1>
+      <h1 className="text-3xl font-bold text-green-700 mb-8 text-center">My Bookings</h1>
 
-      {bookings.length === 0 && <p>No bookings found.</p>}
-
-      <div className="space-y-6">
-        {bookings.map((booking) => (
-          <div key={booking.id} className="border rounded-lg p-4 shadow bg-gray-50">
-            {editingId === booking.id ? (
-              <div className="space-y-2">
-                <input
-                  type="text"
-                  name="doctor"
-                  value={formData.doctor}
-                  onChange={handleChange}
-                  className="border p-2 w-full"
-                />
-                <input
-                  type="text"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleChange}
-                  className="border p-2 w-full"
-                />
-                <input
-                  type="date"
-                  name="date"
-                  value={formData.date}
-                  onChange={handleChange}
-                  className="border p-2 w-full"
-                />
-                <input
-                  type="text"
-                  name="time"
-                  value={formData.time}
-                  onChange={handleChange}
-                  className="border p-2 w-full"
-                />
-                <textarea
-                  name="reason"
-                  value={formData.reason}
-                  onChange={handleChange}
-                  className="border p-2 w-full"
-                />
-                <button
-                  onClick={handleSave}
-                  className="mt-2 bg-green-600 text-white px-4 py-1 rounded"
-                >
-                  Save
-                </button>
+      {bookings.length === 0 ? (
+        <p className="text-center text-gray-500">You have no bookings yet.</p>
+      ) : (
+        <div className="space-y-6 max-w-4xl mx-auto">
+          {bookings.map((booking) => (
+            <div key={booking._id} className="border rounded-lg p-6 shadow-md bg-green-50">
+              <div className="flex justify-between items-start">
+                  <div>
+                      <h2 className="text-xl font-semibold text-green-800">Dr. {booking.doctor.name}</h2>
+                      <p className="text-gray-600">{booking.doctor.email}</p>
+                      <p className="text-gray-600 mt-2">
+                        <strong>Date:</strong> {new Date(booking.date).toLocaleDateString()}
+                      </p>
+                  </div>
+                  <span className={`font-semibold capitalize px-3 py-1 text-sm rounded-full ${
+                      booking.status === 'upcoming' ? 'bg-blue-100 text-blue-700' : 
+                      booking.status === 'completed' ? 'bg-gray-200 text-gray-700' : 
+                      'bg-red-100 text-red-700'
+                  }`}>
+                      {booking.status}
+                  </span>
               </div>
-            ) : (
-              <>
-                <p><strong>Doctor:</strong> {booking.doctor}</p>
-                <p><strong>Location:</strong> {booking.location}</p>
-                <p><strong>Date:</strong> {booking.date}</p>
-                <p><strong>Time:</strong> {booking.time}</p>
-                <p><strong>Status:</strong> <span className={`font-semibold ${booking.status === 'Confirmed' ? 'text-blue-600' : 'text-gray-600'}`}>{booking.status}</span></p>
-                <p><strong>Reason:</strong> {booking.reason}</p>
-
-                {!isPast(booking.date) && booking.editable && (
-                  <button
-                    onClick={() => handleEdit(booking)}
-                    className="mt-2 text-green-600 underline hover:text-green-800"
-                  >
-                    Edit
-                  </button>
-                )}
-              </>
-            )}
-          </div>
-        ))}
-      </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,31 +1,32 @@
 // src/pages/Login.jsx
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import API from '../api/axios'; // axios instance pointing to backend
+import API from '../api/axios';
+import { AuthContext } from '../context/AuthContext';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError('');
     try {
       const { data } = await API.post('/api/auth/login', { email, password });
 
-      // Store token in localStorage
-      localStorage.setItem('token', data.token);
-
-      setError('');
+      // Use the login function from AuthContext to store user and token
+      login(data, data.token);
 
       // Redirect based on role
-      if (data.user.role === 'admin') {
-        navigate('/admin');
-      } else if (data.user.role === 'doctor') {
-        navigate('/doctor');
+      if (data.role === 'admin') {
+        navigate('/admin-dashboard'); // You will need to create this page
+      } else if (data.role === 'doctor') {
+        navigate('/doctor-dashboard');
       } else {
-        navigate('/patient');
+        navigate('/my-bookings');
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please try again.');
@@ -38,7 +39,7 @@ export default function Login() {
         <h1 className="text-3xl font-bold text-center text-green-700 mb-6">Login to MediConnect</h1>
 
         {error && (
-          <div className="bg-red-100 text-red-700 px-4 py-2 rounded mb-4 text-sm font-medium">
+          <div className="bg-red-100 text-red-700 px-4 py-2 rounded mb-4 text-sm font-medium text-center">
             {error}
           </div>
         )}
