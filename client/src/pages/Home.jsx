@@ -1,11 +1,10 @@
-// src/pages/Home.jsx
 import React, { useEffect, useState, useCallback } from 'react';
 import DoctorCard from '../components/DoctorCard';
-import API from '../api/axios'; // Import your axios instance
+import API from '../api/axios'; // Your proxy-enabled axios instance
 
 export default function Home() {
   const [doctors, setDoctors] = useState([]);
-  const [location, setLocation] = useState('');
+  const [location, setLocation] = useState(''); // State for the search input
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -18,11 +17,16 @@ export default function Home() {
       setDoctors(data);
     } catch (err) {
       console.error("Error fetching doctors:", err);
-      setError("Failed to load doctors. Please try again later.");
+      // More specific error message for the user
+      if (err.response && err.response.status === 403) {
+        setError("Error: Connection Forbidden. This is likely a firewall issue on your computer.");
+      } else {
+        setError("Failed to load doctors. Please try again later.");
+      }
     } finally {
       setLoading(false);
     }
-  }, [location]);
+  }, [location]); // Re-run the fetch when the location changes
 
   useEffect(() => {
     fetchDoctors();
@@ -37,6 +41,7 @@ export default function Home() {
         Search by location to find the best specialists near you.
       </p>
 
+      {/* Search Bar */}
       <div className="max-w-xl mx-auto mb-10">
         <input
           type="text"
@@ -47,6 +52,7 @@ export default function Home() {
         />
       </div>
 
+      {/* Display Area */}
       {loading && <p className="text-center text-gray-500">Loading doctors...</p>}
       {error && <p className="text-center text-red-500">{error}</p>}
       
@@ -58,7 +64,7 @@ export default function Home() {
             ))
           ) : (
             <p className="text-center text-gray-500 col-span-full">
-              No doctors found for the specified location. Try another city.
+              No doctors found. Try a different location or clear the search.
             </p>
           )}
         </div>

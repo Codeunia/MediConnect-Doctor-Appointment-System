@@ -8,4 +8,5 @@ const doctorSchema = new mongoose.Schema({
   image: { type: String, default: '' },
 });
 
-module.exports = mongoose.model('Doctor', doctorSchema);
+// This line ensures Mongoose looks for the correct collection named "doctors".
+module.exports = mongoose.model('Doctor', doctorSchema, 'doctors');

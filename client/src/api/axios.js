@@ -1,6 +1,8 @@
+// client/src/api/axios.js
 import axios from 'axios';
 
-const API = axios.create({ baseURL: 'http://localhost:5000' });
+// REMOVE the baseURL. Requests will be proxied automatically.
+const API = axios.create(); 
 
 // Attach JWT to every request if present
 API.interceptors.request.use((req) => {
