@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-require('dotenv').config(); // This loads the .env file
+require('dotenv').config();
 
 // Import your routes
 const authRoutes = require('./routes/authRoutes');
@@ -19,14 +19,14 @@ const connectDB = async () => {
     console.log("✅ MongoDB Connected Successfully!");
   } catch (err) {
     console.error("❌ MongoDB Connection Error:", err.message);
-    // Exit process with failure
+
     process.exit(1);
   }
 };
 
 connectDB();
 
-// --- API Routes ---
+
 app.use('/api/auth', authRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/doctors', doctorRoutes);
