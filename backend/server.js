@@ -1,3 +1,5 @@
+// backend/server.js
+
 const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config();
@@ -6,6 +8,7 @@ require('dotenv').config();
 const authRoutes = require('./routes/authRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const doctorRoutes = require('./routes/doctorRoutes');
+const adminRoutes = require('./routes/adminRoutes'); // 👈 This was missing
 
 const app = express();
 
@@ -16,6 +19,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/doctors', doctorRoutes);
+app.use('/api/admin', adminRoutes); // 👈 This was missing
 
 // --- Database Connection and Server Startup ---
 const PORT = process.env.PORT || 8080;
@@ -25,6 +29,7 @@ const startServer = async () => {
     // Connect to the database using the URI from your .env file
     await mongoose.connect(process.env.MONGO_URI);
     console.log("✅ MongoDB Connected Successfully!");
+    console.log(`✅ Connected to database: "${mongoose.connection.name}"`);
 
     // Start listening for requests ONLY after the database connection is successful
     app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

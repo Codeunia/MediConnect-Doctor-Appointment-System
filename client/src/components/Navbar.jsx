@@ -1,3 +1,5 @@
+// client/src/components/Navbar.jsx
+
 import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
@@ -18,16 +20,13 @@ export default function Navbar() {
           MediConnect
         </Link>
 
-        {/* Desktop Nav Links */}
+        {/* --- Main Navigation Links --- */}
         <div className="space-x-6 hidden md:flex items-center">
           <Link to="/" className="text-gray-700 hover:text-green-600 transition">
             Home
           </Link>
-          <Link to="/about" className="text-gray-700 hover:text-green-600 transition">
-            About
-          </Link>
           
-          {/* Show these links only if a user is logged in */}
+          {/* Show patient-specific links if a user is logged in */}
           {user && (
             <>
               <Link to="/appointments" className="text-gray-700 hover:text-green-600 transition">
@@ -39,28 +38,37 @@ export default function Navbar() {
             </>
           )}
 
-          {/* Show Doctor Dashboard link only if the user is a doctor */}
+          {/* --- START: ROLE-BASED DASHBOARD LINKS --- */}
+          {/* Show Doctor Dashboard link ONLY if the user's role is 'doctor' */}
           {user && user.role === 'doctor' && (
-            <Link to="/doctor-dashboard" className="text-gray-700 hover:text-green-600 transition">
+            <Link to="/doctor-dashboard" className="font-semibold text-blue-600 hover:text-blue-800 transition">
               Doctor Dashboard
             </Link>
           )}
 
+          {/* Show Admin Dashboard link ONLY if the user's role is 'admin' */}
+          {user && user.role === 'admin' && (
+            <Link to="/admin-dashboard" className="font-semibold text-purple-600 hover:text-purple-800 transition">
+              Admin Dashboard
+            </Link>
+          )}
+          {/* --- END: ROLE-BASED DASHBOARD LINKS --- */}
+
         </div>
 
-        {/* Auth Buttons */}
-        <div className="hidden md:flex space-x-4">
+        {/* --- Authentication Buttons --- */}
+        <div className="hidden md:flex items-center space-x-4">
           {user ? (
             // If user is logged in, show their name and a Logout button
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-800 font-medium">Welcome, {user.name}</span>
+            <>
+              <span className="text-gray-800 font-medium">Welcome, {user.name} ({user.role})</span>
               <button
                 onClick={handleLogout}
                 className="text-sm px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
               >
                 Logout
               </button>
-            </div>
+            </>
           ) : (
             // If user is logged out, show Login and Register buttons
             <>
