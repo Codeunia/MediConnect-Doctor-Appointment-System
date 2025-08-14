@@ -1,10 +1,12 @@
-// src/App.js
+// client/src/App.jsx
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 
+// Import your components and pages
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from './components/ProtectedRoute'; // 👈 Import the new component
 
 import Home from './pages/Home';
 import About from './pages/About';
@@ -23,14 +25,15 @@ function App() {
           <Navbar />
           <main className="flex-grow">
             <Routes>
-              {/* Public Routes */}
+              {/* --- Public Routes --- */}
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
 
-              {/* Protected Routes */}
+              {/* --- Protected Routes --- */}
+              {/* Wrap the elements you want to protect in the ProtectedRoute component */}
               <Route
                 path="/appointments"
                 element={<ProtectedRoute><Appointments /></ProtectedRoute>}

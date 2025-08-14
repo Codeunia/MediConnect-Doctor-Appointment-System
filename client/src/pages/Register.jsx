@@ -1,8 +1,9 @@
-// src/pages/Register.jsx
+// client/src/pages/Register.jsx
+
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
+import API from '../api/axios'; // Your pre-configured axios instance
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -11,7 +12,9 @@ export default function Register() {
     password: '',
   });
   const [error, setError] = useState('');
-  const { login } = useContext(AuthContext);
+  
+  // Use the login function from context to auto-login after register
+  const { login } = useContext(AuthContext); 
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -20,16 +23,26 @@ export default function Register() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    setError(''); // Clear previous errors
+    setError('');
+
+    // Basic validation
     if (!formData.name || !formData.email || !formData.password) {
       setError('Please fill in all fields.');
       return;
     }
+
     try {
+      // Call the backend registration endpoint
       const { data } = await API.post('/api/auth/register', formData);
-      login(data, data.token); // Use context to set user and token
-      navigate('/'); // Redirect to the homepage
+      
+      // Use the login function to set the user state and token
+      await login({ email: formData.email, password: formData.password });
+      
+      // Redirect to the homepage after successful registration and login
+      navigate('/'); 
+
     } catch (err) {
+      // Display any error messages from the backend
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
     }
   };
@@ -51,47 +64,40 @@ export default function Register() {
             <input
               type="text"
               name="name"
-              value={formData.name}
               onChange={handleChange}
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-400 outline-none"
               placeholder="Your full name"
             />
           </div>
-
           <div>
             <label className="block text-sm font-medium text-green-800 mb-1">Email</label>
             <input
               type="email"
               name="email"
-              value={formData.email}
               onChange={handleChange}
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-400 outline-none"
               placeholder="you@example.com"
             />
           </div>
-
           <div>
             <label className="block text-sm font-medium text-green-800 mb-1">Password</label>
             <input
               type="password"
               name="password"
-              value={formData.password}
               onChange={handleChange}
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-400 outline-none"
               placeholder="Create a password"
             />
           </div>
-
           <button
             type="submit"
             className="bg-green-600 hover:bg-green-700 text-white font-semibold w-full py-3 rounded-xl transition-all"
           >
             Register
           </button>
-
           <p className="text-sm text-center text-gray-600 mt-4">
             Already have an account?{' '}
             <Link to="/login" className="text-blue-600 font-semibold hover:underline">

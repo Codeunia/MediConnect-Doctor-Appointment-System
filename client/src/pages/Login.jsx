@@ -1,32 +1,28 @@
-// src/pages/Login.jsx
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { login } = useContext(AuthContext);
+  
+  const { login, loading } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     try {
-      const { data } = await API.post('/api/auth/login', { email, password });
-
-      // Use the login function from AuthContext to store user and token
-      login(data, data.token);
-
-      // Redirect based on role
-      if (data.role === 'admin') {
-        navigate('/admin-dashboard'); // You will need to create this page
-      } else if (data.role === 'doctor') {
+      const data = await login({ email, password });
+      
+      // Redirect based on role after successful login
+      if (data.user.role === 'admin') {
+        navigate('/admin-dashboard'); // You will create this page
+      } else if (data.user.role === 'doctor') {
         navigate('/doctor-dashboard');
       } else {
-        navigate('/my-bookings');
+        navigate('/'); // Redirect patient to homepage
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please try again.');
@@ -56,7 +52,6 @@ export default function Login() {
               placeholder="you@example.com"
             />
           </div>
-
           <div>
             <label className="block text-sm font-medium text-green-800 mb-1">Password</label>
             <input
@@ -68,14 +63,13 @@ export default function Login() {
               placeholder="Enter your password"
             />
           </div>
-
           <button
             type="submit"
-            className="bg-green-600 hover:bg-green-700 text-white font-semibold w-full py-3 rounded-xl transition-all"
+            disabled={loading}
+            className="bg-green-600 hover:bg-green-700 text-white font-semibold w-full py-3 rounded-xl transition-all disabled:bg-gray-400"
           >
-            Login
+            {loading ? 'Logging in...' : 'Login'}
           </button>
-
           <p className="text-sm text-center text-gray-600 mt-4">
             Don’t have an account?{' '}
             <Link to="/register" className="text-blue-600 font-semibold hover:underline">
