@@ -1,0 +1,47 @@
+// backend/controllers/doctorController.js
+
+const Doctor = require('../models/Doctor');
+
+// --- GET A DOCTOR's OWN PROFILE ---
+exports.getDoctorProfile = async (req, res) => {
+  try {
+    // Find the doctor profile that is linked to the logged-in user's ID
+    const doctorProfile = await Doctor.findOne({ user: req.user.id });
+
+    if (!doctorProfile) {
+      return res.status(404).json({ message: 'Doctor profile not found.' });
+    }
+    res.json(doctorProfile);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+// --- UPDATE A DOCTOR's OWN PROFILE ---
+exports.updateDoctorProfile = async (req, res) => {
+  try {
+    const { name, specialty, experience, location, image, phone, bio, consultationHours } = req.body;
+
+    const doctorProfile = await Doctor.findOne({ user: req.user.id });
+
+    if (!doctorProfile) {
+      return res.status(404).json({ message: 'Doctor profile not found.' });
+    }
+
+    // Update the fields with new data or keep the old data if nothing new is provided
+    doctorProfile.name = name || doctorProfile.name;
+    doctorProfile.specialty = specialty || doctorProfile.specialty;
+    doctorProfile.experience = experience || doctorProfile.experience;
+    doctorProfile.location = location || doctorProfile.location;
+    doctorProfile.image = image || doctorProfile.image;
+    doctorProfile.phone = phone || doctorProfile.phone;
+    doctorProfile.bio = bio || doctorProfile.bio;
+    doctorProfile.consultationHours = consultationHours || doctorProfile.consultationHours;
+
+    const updatedProfile = await doctorProfile.save();
+    res.json(updatedProfile);
+
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+};

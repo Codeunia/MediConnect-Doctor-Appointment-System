@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import API from '../api/axios';
 
-// --- START: New, Smarter Time Slot Generation Logic ---
+// --- New, Smarter Time Slot Generation Logic ---
 const generateValidTimeSlots = (selectedDate) => {
   const slots = [];
   const now = new Date();
@@ -41,7 +41,6 @@ const generateValidTimeSlots = (selectedDate) => {
 
   return slots;
 };
-// --- END: New, Smarter Time Slot Generation Logic ---
 
 export default function Appointments() {
   const [doctors, setDoctors] = useState([]);

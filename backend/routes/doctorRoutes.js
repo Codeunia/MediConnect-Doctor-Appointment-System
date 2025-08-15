@@ -1,18 +1,23 @@
-// backend/routes/doctorRoutes.js
-
 const express = require('express');
+const { getDoctorProfile, updateDoctorProfile } = require('../controllers/doctorController');
+const { protect } = require('../middleware/authMiddleware');
+const { isDoctor } = require('../middleware/roleMiddleware');
 const Doctor = require('../models/Doctor');
+
 const router = express.Router();
 
-// This single route now handles all filtering logic
+// --- Doctor-specific routes (protected and role-restricted) ---
+router.route('/profile')
+  .get(protect, isDoctor, getDoctorProfile)
+  .put(protect, isDoctor, updateDoctorProfile);
+
+// --- Public route to get all doctors for the home page ---
 router.get('/', async (req, res) => {
   try {
     const { name, specialty, location } = req.query;
     
-    // Build a dynamic query object
     const query = {};
     if (name) {
-      // Case-insensitive search for the doctor's name
       query.name = { $regex: name, $options: 'i' };
     }
     if (specialty) {

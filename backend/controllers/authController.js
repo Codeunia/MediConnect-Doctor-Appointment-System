@@ -22,20 +22,19 @@ exports.register = async (req, res) => {
     // 2. Create the new user in the 'users' collection
     const user = await User.create({ name, email, password, role });
 
-    // 3. START: Synchronize Doctor Profile
-    // If the new user's role is 'doctor', automatically create a corresponding
-    // document in the 'doctors' collection.
+    // 3. Synchronize Doctor Profile
+    // If the new user's role is 'doctor', automatically create a default
+    // profile in the 'doctors' collection, linked to this user account.
     if (user && role === 'doctor') {
       await Doctor.create({
-        user: user._id, // Link to the user's ID
+        user: user._id, // This is the crucial link
         name: `Dr. ${user.name}`,
-        specialty: 'General Physician', // Assign a default specialty
-        experience: '1 year', // Assign default experience
-        location: 'To be updated', // Assign default location
-        image: `/images/doctor-placeholder.jpg` // A default placeholder image
+        specialty: 'Please update specialty',
+        experience: 'Please update experience',
+        location: 'Please update location',
+        image: '/images/doctor-placeholder.jpg', // A default placeholder image
       });
     }
-    // END: Synchronize Doctor Profile
 
     // 4. Respond with a success message
     if (user) {
