@@ -1,10 +1,18 @@
 // backend/middleware/roleMiddleware.js
 
-// This middleware checks if the user has the 'admin' role
 exports.isAdmin = (req, res, next) => {
   if (req.user && req.user.role === 'admin') {
-    next(); // User is an admin, proceed to the next middleware/controller
+    next();
   } else {
     res.status(403).json({ message: 'Not authorized as an admin' });
+  }
+};
+
+// --- ADD THIS NEW FUNCTION ---
+exports.isDoctor = (req, res, next) => {
+  if (req.user && req.user.role === 'doctor') {
+    next(); // User is a doctor, proceed
+  } else {
+    res.status(403).json({ message: 'Not authorized as a doctor' });
   }
 };

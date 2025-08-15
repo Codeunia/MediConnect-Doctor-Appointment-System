@@ -1,18 +1,29 @@
+// backend/routes/doctorRoutes.js
+
 const express = require('express');
 const Doctor = require('../models/Doctor');
 const router = express.Router();
 
+// This single route now handles all filtering logic
 router.get('/', async (req, res) => {
   try {
-    console.log("--- New request to /api/doctors ---");
-    const { location } = req.query;
-    const query = location ? { location: { $regex: location, $options: 'i' } } : {};
+    const { name, specialty, location } = req.query;
+    
+    // Build a dynamic query object
+    const query = {};
+    if (name) {
+      // Case-insensitive search for the doctor's name
+      query.name = { $regex: name, $options: 'i' };
+    }
+    if (specialty) {
+      query.specialty = specialty;
+    }
+    if (location) {
+      query.location = location;
+    }
     
     const doctors = await Doctor.find(query);
     
-
-    console.log(`DATABASE QUERY: Found ${doctors.length} doctors.`);
-
     res.json(doctors);
 
   } catch (error) {

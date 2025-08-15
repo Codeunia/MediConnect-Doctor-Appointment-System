@@ -26,7 +26,6 @@ export default function Navbar() {
             Home
           </Link>
           
-          {/* Show patient-specific links if a user is logged in */}
           {user && (
             <>
               <Link to="/appointments" className="text-gray-700 hover:text-green-600 transition">
@@ -38,30 +37,27 @@ export default function Navbar() {
             </>
           )}
 
-          {/* --- START: ROLE-BASED DASHBOARD LINKS --- */}
-          {/* Show Doctor Dashboard link ONLY if the user's role is 'doctor' */}
           {user && user.role === 'doctor' && (
             <Link to="/doctor-dashboard" className="font-semibold text-blue-600 hover:text-blue-800 transition">
               Doctor Dashboard
             </Link>
           )}
 
-          {/* Show Admin Dashboard link ONLY if the user's role is 'admin' */}
           {user && user.role === 'admin' && (
             <Link to="/admin-dashboard" className="font-semibold text-purple-600 hover:text-purple-800 transition">
               Admin Dashboard
             </Link>
           )}
-          {/* --- END: ROLE-BASED DASHBOARD LINKS --- */}
-
         </div>
 
         {/* --- Authentication Buttons --- */}
         <div className="hidden md:flex items-center space-x-4">
           {user ? (
-            // If user is logged in, show their name and a Logout button
             <>
-              <span className="text-gray-800 font-medium">Welcome, {user.name} ({user.role})</span>
+              <Link to="/profile" className="text-gray-700 hover:text-green-600 transition font-medium">
+                My Profile
+              </Link>
+              <span className="text-gray-800">Welcome, {user.name}</span>
               <button
                 onClick={handleLogout}
                 className="text-sm px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
@@ -70,7 +66,6 @@ export default function Navbar() {
               </button>
             </>
           ) : (
-            // If user is logged out, show Login and Register buttons
             <>
               <Link
                 to="/login"

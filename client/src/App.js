@@ -16,7 +16,8 @@ import Register from './pages/Register';
 import Appointments from './pages/Appointments';
 import MyBookings from './pages/MyBookings';
 import DoctorDashboard from './pages/DoctorDashboard';
-import AdminDashboard from './pages/AdminDashboard'; // 👈 Import the new page
+import AdminDashboard from './pages/AdminDashboard';
+import Profile from './pages/Profile'; // Import the new Profile page
 
 function App() {
   return (
@@ -33,7 +34,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
 
-              {/* --- Protected Routes for Patients & Doctors --- */}
+              {/* --- Protected Routes --- */}
               <Route
                 path="/appointments"
                 element={<ProtectedRoute><Appointments /></ProtectedRoute>}
@@ -46,11 +47,13 @@ function App() {
                 path="/doctor-dashboard"
                 element={<ProtectedRoute><DoctorDashboard /></ProtectedRoute>}
               />
-
-              {/* --- New Protected Admin Route --- */}
               <Route
                 path="/admin-dashboard"
                 element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>}
+              />
+              <Route
+                path="/profile"
+                element={<ProtectedRoute><Profile /></ProtectedRoute>}
               />
             </Routes>
           </main>

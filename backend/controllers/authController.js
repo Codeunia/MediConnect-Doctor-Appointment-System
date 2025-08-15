@@ -1,10 +1,9 @@
-// backend/controllers/authController.js
-
 const User = require('../models/User');
+const Doctor = require('../models/Doctor'); // Import the Doctor model
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
-// Helper function to generate a token
+// Helper function to generate a JWT token
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: '7d' });
 };
@@ -14,16 +13,31 @@ exports.register = async (req, res) => {
   const { name, email, password, role } = req.body;
 
   try {
-    // 1. Check if user already exists
+    // 1. Check if a user with this email already exists
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: 'User with this email already exists' });
     }
 
-    // 2. Create a new user
+    // 2. Create the new user in the 'users' collection
     const user = await User.create({ name, email, password, role });
 
-    // 3. Respond with a success message and user info (excluding password)
+    // 3. START: Synchronize Doctor Profile
+    // If the new user's role is 'doctor', automatically create a corresponding
+    // document in the 'doctors' collection.
+    if (user && role === 'doctor') {
+      await Doctor.create({
+        user: user._id, // Link to the user's ID
+        name: `Dr. ${user.name}`,
+        specialty: 'General Physician', // Assign a default specialty
+        experience: '1 year', // Assign default experience
+        location: 'To be updated', // Assign default location
+        image: `/images/doctor-placeholder.jpg` // A default placeholder image
+      });
+    }
+    // END: Synchronize Doctor Profile
+
+    // 4. Respond with a success message
     if (user) {
       res.status(201).json({
         message: 'User registered successfully!',
@@ -39,6 +53,7 @@ exports.register = async (req, res) => {
       res.status(400).json({ message: 'Invalid user data' });
     }
   } catch (error) {
+    console.error('Registration Error:', error)
     res.status(500).json({ message: 'Server error during registration' });
   }
 };

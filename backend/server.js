@@ -1,5 +1,3 @@
-// backend/server.js
-
 const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config();
@@ -8,18 +6,23 @@ require('dotenv').config();
 const authRoutes = require('./routes/authRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const doctorRoutes = require('./routes/doctorRoutes');
-const adminRoutes = require('./routes/adminRoutes'); // 👈 This was missing
+const adminRoutes = require('./routes/adminRoutes');
+const availabilityRoutes = require('./routes/availabilityRoutes');
+const userRoutes = require('./routes/userRoutes'); // For user profiles
 
 const app = express();
 
-// Middleware
+// Middleware to parse incoming JSON requests
 app.use(express.json());
 
 // --- API Routes ---
+// Use the imported routers for your API endpoints
 app.use('/api/auth', authRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/doctors', doctorRoutes);
-app.use('/api/admin', adminRoutes); // 👈 This was missing
+app.use('/api/admin', adminRoutes);
+app.use('/api/availability', availabilityRoutes);
+app.use('/api/users', userRoutes); // Use the new user routes
 
 // --- Database Connection and Server Startup ---
 const PORT = process.env.PORT || 8080;

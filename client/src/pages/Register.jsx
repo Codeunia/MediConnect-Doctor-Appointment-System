@@ -3,18 +3,17 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import API from '../api/axios'; // Your pre-configured axios instance
+import API from '../api/axios';
 
 export default function Register() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
+    role: 'patient', // Default role is 'patient'
   });
   const [error, setError] = useState('');
-  
-  // Use the login function from context to auto-login after register
-  const { login } = useContext(AuthContext); 
+  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -25,24 +24,28 @@ export default function Register() {
     e.preventDefault();
     setError('');
 
-    // Basic validation
     if (!formData.name || !formData.email || !formData.password) {
       setError('Please fill in all fields.');
       return;
     }
 
     try {
-      // Call the backend registration endpoint
-      const { data } = await API.post('/api/auth/register', formData);
+      // The 'role' is now included in the data sent to the backend
+      await API.post('/api/auth/register', formData);
       
-      // Use the login function to set the user state and token
-      await login({ email: formData.email, password: formData.password });
+      // Auto-login the user after they register
+      const loginData = await login({ email: formData.email, password: formData.password });
       
-      // Redirect to the homepage after successful registration and login
-      navigate('/'); 
+      // Redirect based on the new user's role
+      if (loginData.user.role === 'doctor') {
+        navigate('/doctor-dashboard');
+      } else if (loginData.user.role === 'admin') {
+        navigate('/admin-dashboard');
+      } else {
+        navigate('/'); // Default redirect for patients
+      }
 
     } catch (err) {
-      // Display any error messages from the backend
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
     }
   };
@@ -59,6 +62,33 @@ export default function Register() {
         )}
 
         <form onSubmit={handleRegister} className="space-y-5">
+          {/* --- START: ROLE SELECTOR --- */}
+          <div className="flex justify-around items-center">
+            <label className="flex items-center space-x-2">
+              <input
+                type="radio"
+                name="role"
+                value="patient"
+                checked={formData.role === 'patient'}
+                onChange={handleChange}
+                className="form-radio text-green-600"
+              />
+              <span className="text-gray-700">I am a Patient</span>
+            </label>
+            <label className="flex items-center space-x-2">
+              <input
+                type="radio"
+                name="role"
+                value="doctor"
+                checked={formData.role === 'doctor'}
+                onChange={handleChange}
+                className="form-radio text-green-600"
+              />
+              <span className="text-gray-700">I am a Doctor</span>
+            </label>
+          </div>
+          {/* --- END: ROLE SELECTOR --- */}
+
           <div>
             <label className="block text-sm font-medium text-green-800 mb-1">Name</label>
             <input

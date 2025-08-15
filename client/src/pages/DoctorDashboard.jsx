@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
+import AvailabilityManager from '../components/AvailabilityManager'; // Import the new component
 
 export default function DoctorDashboard() {
   const [bookings, setBookings] = useState([]);
@@ -12,7 +13,6 @@ export default function DoctorDashboard() {
 
   useEffect(() => {
     const fetchDoctorBookings = async () => {
-      // Ensure the user is a doctor before fetching
       if (user && user.role === 'doctor') {
         try {
           setLoading(true);
@@ -26,6 +26,7 @@ export default function DoctorDashboard() {
           setLoading(false);
         }
       } else {
+        // If the user is not a doctor, we don't need to fetch anything.
         setLoading(false);
       }
     };
@@ -45,6 +46,11 @@ export default function DoctorDashboard() {
   if (error) {
     return <div className="text-center py-20 text-red-600">{error}</div>;
   }
+  
+  // If a non-doctor somehow reaches this page, show a message.
+  if (user?.role !== 'doctor') {
+    return <div className="text-center py-20 text-red-600">Access Denied. This page is for doctors only.</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 sm:px-8 py-12">
@@ -52,6 +58,7 @@ export default function DoctorDashboard() {
         <h1 className="text-3xl font-bold text-green-800 mb-2">Doctor Dashboard</h1>
         <p className="text-gray-600 mb-8">Welcome, Dr. {user?.name}. Here are your scheduled appointments.</p>
 
+        {/* --- Appointment List Table --- */}
         <div className="bg-white rounded-lg shadow-md border border-gray-200">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -105,6 +112,10 @@ export default function DoctorDashboard() {
             </table>
           </div>
         </div>
+        
+        {/* --- Availability Management Component --- */}
+        <AvailabilityManager />
+
       </div>
     </div>
   );

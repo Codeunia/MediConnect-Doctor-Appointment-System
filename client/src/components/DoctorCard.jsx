@@ -16,20 +16,21 @@ export default function DoctorCard({ doctor }) {
       <div className="w-full h-48 bg-gray-100">
         <img
           src={imagePath}
-          alt={`Dr. ${doctor.name}`}
+          alt={doctor.name}
           onError={handleImageError}
           className="w-full h-full object-contain" 
         />
       </div>
       <div className="p-5 flex flex-col flex-grow">
-        <h3 className="text-xl font-semibold text-green-700">Dr. {doctor.name}</h3>
+        {/* --- THIS IS THE CHANGE --- */}
+        {/* Display the name directly from the database */}
+        <h3 className="text-xl font-semibold text-green-700">{doctor.name}</h3>
+        
         <p className="text-gray-600 font-medium">{doctor.specialty}</p>
         <p className="text-sm text-gray-500 mt-1">{doctor.experience} of experience</p>
         <p className="text-sm text-gray-500 mt-1">📍 {doctor.location}</p>
         
         <div className="mt-auto pt-4">
-          {/* --- THIS IS THE CHANGE --- */}
-          {/* We are now passing the doctor object in the link's state */}
           <Link to="/appointments" state={{ doctor: doctor }}>
             <button className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition font-semibold">
               Book Appointment
