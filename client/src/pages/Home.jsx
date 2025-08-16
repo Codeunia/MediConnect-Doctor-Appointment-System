@@ -1,12 +1,10 @@
-// client/src/pages/Home.jsx
-
 import React, { useEffect, useState, useCallback } from 'react';
 import DoctorCard from '../components/DoctorCard';
 import API from '../api/axios';
 
 export default function Home() {
-  const [allDoctors, setAllDoctors] = useState([]); // To store the original list
-  const [filteredDoctors, setFilteredDoctors] = useState([]); // To display
+  const [allDoctors, setAllDoctors] = useState([]);
+  const [filteredDoctors, setFilteredDoctors] = useState([]);
   
   const [searchTerm, setSearchTerm] = useState('');
   const [specialtyFilter, setSpecialtyFilter] = useState('');
@@ -19,19 +17,21 @@ export default function Home() {
   const [error, setError] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  // Fetch all doctors once on component mount
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
         setLoading(true);
         setError('');
         const { data } = await API.get('/api/doctors');
-        setAllDoctors(data);
-        setFilteredDoctors(data);
+        
+        // Filter out any invalid doctor entries before setting state
+        const validDoctors = data.filter(doc => doc && doc.name);
 
-        // Get unique specialties and locations for the filter dropdowns
-        const uniqueSpecialties = [...new Set(data.map(doc => doc.specialty))];
-        const uniqueLocations = [...new Set(data.map(doc => doc.location))];
+        setAllDoctors(validDoctors);
+        setFilteredDoctors(validDoctors);
+
+        const uniqueSpecialties = [...new Set(validDoctors.map(doc => doc.specialty))];
+        const uniqueLocations = [...new Set(validDoctors.map(doc => doc.location))];
         setSpecialties(uniqueSpecialties.sort());
         setLocations(uniqueLocations.sort());
 
@@ -45,13 +45,13 @@ export default function Home() {
     fetchInitialData();
   }, []);
 
-  // This function will now filter the data on the frontend
   const applyFilters = useCallback(() => {
     let doctors = [...allDoctors];
 
+    // THE FIX: Add a check (doc && doc.name) to prevent crashes
     if (searchTerm) {
       doctors = doctors.filter(doc => 
-        doc.name.toLowerCase().includes(searchTerm.toLowerCase())
+        doc && doc.name && doc.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
     if (specialtyFilter) {
@@ -85,7 +85,6 @@ export default function Home() {
           Your health is our priority. Connect with trusted specialists.
         </p>
 
-        {/* --- Search and Filter Bar --- */}
         <div className="flex flex-col md:flex-row gap-4 mb-10">
           <input
             type="text"
@@ -102,11 +101,9 @@ export default function Home() {
           </button>
         </div>
 
-        {/* --- Filter Modal/Panel --- */}
         {isFilterOpen && (
           <div className="bg-white p-6 rounded-lg shadow-lg border mb-10">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Specialty Filter */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Specialty</label>
                 <select 
@@ -118,7 +115,6 @@ export default function Home() {
                   {specialties.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
-              {/* Location Filter */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
                 <select 
@@ -130,7 +126,6 @@ export default function Home() {
                   {locations.map(l => <option key={l} value={l}>{l}</option>)}
                 </select>
               </div>
-              {/* Reset Button */}
               <div className="flex items-end">
                 <button 
                   onClick={handleResetFilters}
@@ -143,7 +138,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* --- Display Area --- */}
         {loading && <p className="text-center text-gray-500">Loading doctors...</p>}
         {error && <p className="text-center text-red-500">{error}</p>}
         

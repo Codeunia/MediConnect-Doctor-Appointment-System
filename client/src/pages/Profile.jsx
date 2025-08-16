@@ -1,5 +1,3 @@
-// client/src/pages/Profile.jsx
-
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
@@ -8,22 +6,20 @@ import API from '../api/axios';
 export default function Profile() {
   const { user } = useContext(AuthContext);
   
-  // State to control which modal is open ('editDoctor', 'changePassword', or null)
   const [modal, setModal] = useState(null); 
-  
-  // State to hold the doctor's professional details
   const [doctorProfile, setDoctorProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    // If the logged-in user is a doctor, fetch their professional profile
     if (user && user.role === 'doctor') {
       const fetchDoctorProfile = async () => {
         try {
           const { data } = await API.get('/api/doctors/profile');
           setDoctorProfile(data);
-        } catch (error) {
-          console.error("Failed to fetch doctor profile", error);
+        } catch (err) {
+          console.error("Failed to fetch doctor profile", err);
+          setError('Could not load your doctor profile. Please try again.');
         } finally {
           setLoading(false);
         }
@@ -42,7 +38,6 @@ export default function Profile() {
     <div className="min-h-screen bg-gray-100 p-4 sm:p-8">
       <div className="max-w-4xl mx-auto">
         
-        {/* --- User Account Details Card --- */}
         <div className="bg-white p-6 rounded-lg shadow-md mb-8">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Your Account</h2>
           <div className="space-y-2">
@@ -60,32 +55,37 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* --- Doctor Professional Details Card (only for doctors) --- */}
-        {user && user.role === 'doctor' && doctorProfile && (
+        {user && user.role === 'doctor' && (
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Your Public Doctor Profile</h2>
-            <div className="space-y-2">
-              <p><strong>Display Name:</strong> {doctorProfile.name}</p>
-              <p><strong>Specialty:</strong> {doctorProfile.specialty}</p>
-              <p><strong>Experience:</strong> {doctorProfile.experience}</p>
-              <p><strong>Location:</strong> {doctorProfile.location}</p>
-              <p><strong>Phone:</strong> {doctorProfile.phone}</p>
-              <p><strong>Consultation Hours:</strong> {doctorProfile.consultationHours}</p>
-              <p><strong>Bio:</strong> {doctorProfile.bio}</p>
-            </div>
-            <div className="mt-4">
-              <button 
-                onClick={() => setModal('editDoctor')}
-                className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
-              >
-                Edit Doctor Details
-              </button>
-            </div>
+            {error && <p className="text-red-600 bg-red-50 p-3 rounded-lg mb-4">{error}</p>}
+            {doctorProfile ? (
+              <>
+                <div className="space-y-2">
+                  <p><strong>Display Name:</strong> {doctorProfile.name}</p>
+                  <p><strong>Specialty:</strong> {doctorProfile.specialty}</p>
+                  <p><strong>Experience:</strong> {doctorProfile.experience}</p>
+                  <p><strong>Location:</strong> {doctorProfile.location}</p>
+                  <p><strong>Phone:</strong> {doctorProfile.phone}</p>
+                  <p><strong>Consultation Hours:</strong> {doctorProfile.consultationHours}</p>
+                  <p><strong>Bio:</strong> {doctorProfile.bio}</p>
+                </div>
+                <div className="mt-4">
+                  <button 
+                    onClick={() => setModal('editDoctor')}
+                    className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
+                  >
+                    Edit Doctor Details
+                  </button>
+                </div>
+              </>
+            ) : !error && (
+              <p>Loading doctor details...</p>
+            )}
           </div>
         )}
 
-        {/* --- Modals for Editing --- */}
-        {modal === 'editDoctor' && (
+        {modal === 'editDoctor' && doctorProfile && (
           <EditDoctorProfileModal 
             profile={doctorProfile}
             onClose={() => setModal(null)}
@@ -103,7 +103,6 @@ export default function Profile() {
   );
 }
 
-
 // --- Modal Component for Editing Doctor Profile ---
 const EditDoctorProfileModal = ({ profile, onClose, onSave }) => {
   const [formData, setFormData] = useState(profile);
@@ -117,7 +116,7 @@ const EditDoctorProfileModal = ({ profile, onClose, onSave }) => {
     e.preventDefault();
     try {
       const { data } = await API.put('/api/doctors/profile', formData);
-      onSave(data); // Pass the updated data back to the parent
+      onSave(data);
       setMessage('Profile updated successfully!');
     } catch (error) {
       setMessage('Failed to update profile.');
@@ -125,7 +124,7 @@ const EditDoctorProfileModal = ({ profile, onClose, onSave }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4">
       <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-lg">
         <h2 className="text-2xl font-bold mb-4">Edit Doctor Details</h2>
         {message && <p className="text-green-600 mb-4">{message}</p>}
@@ -147,7 +146,6 @@ const EditDoctorProfileModal = ({ profile, onClose, onSave }) => {
   );
 };
 
-
 // --- Modal Component for Changing Password ---
 const ChangePasswordModal = ({ onClose }) => {
   const [currentPassword, setCurrentPassword] = useState('');
@@ -167,7 +165,6 @@ const ChangePasswordModal = ({ onClose }) => {
     try {
       const { data } = await API.put('/api/users/profile/password', { currentPassword, newPassword });
       setMessage(data.message);
-      // Clear fields after success
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
@@ -177,7 +174,7 @@ const ChangePasswordModal = ({ onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4">
       <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
         <h2 className="text-2xl font-bold mb-4">Change Your Password</h2>
         {message && <p className="text-green-600 mb-4">{message}</p>}

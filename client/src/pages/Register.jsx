@@ -1,16 +1,21 @@
-// client/src/pages/Register.jsx
-
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
+
+const specialties = [
+  "Cardiologist", "Dermatologist", "Pediatrician", "Neurologist", 
+  "Orthopedic Surgeon", "Gynecologist", "ENT Specialist", "Ophthalmologist",
+  "Psychiatrist", "Oncologist", "General Physician"
+];
 
 export default function Register() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    role: 'patient', // Default role is 'patient'
+    role: 'patient',
+    specialty: '' 
   });
   const [error, setError] = useState('');
   const { login } = useContext(AuthContext);
@@ -28,25 +33,24 @@ export default function Register() {
       setError('Please fill in all fields.');
       return;
     }
+    if (formData.role === 'doctor' && !formData.specialty) {
+        setError('Please select a specialty.');
+        return;
+    }
 
     try {
-      // The 'role' is now included in the data sent to the backend
       await API.post('/api/auth/register', formData);
       
-      // Auto-login the user after they register
       const loginData = await login({ email: formData.email, password: formData.password });
       
-      // Redirect based on the new user's role
       if (loginData.user.role === 'doctor') {
-        navigate('/doctor-dashboard');
-      } else if (loginData.user.role === 'admin') {
-        navigate('/admin-dashboard');
+        navigate('/profile'); // Redirect doctor to profile to complete details
       } else {
-        navigate('/'); // Default redirect for patients
+        navigate('/');
       }
 
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      setError(err.response?.data?.message || 'Registration failed.');
     }
   };
 
@@ -62,7 +66,6 @@ export default function Register() {
         )}
 
         <form onSubmit={handleRegister} className="space-y-5">
-          {/* --- START: ROLE SELECTOR --- */}
           <div className="flex justify-around items-center">
             <label className="flex items-center space-x-2">
               <input
@@ -87,7 +90,21 @@ export default function Register() {
               <span className="text-gray-700">I am a Doctor</span>
             </label>
           </div>
-          {/* --- END: ROLE SELECTOR --- */}
+
+          {formData.role === 'doctor' && (
+            <div>
+              <label className="block text-sm font-medium text-green-800 mb-1">Specialty</label>
+              <select
+                name="specialty"
+                value={formData.specialty}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-400 outline-none"
+              >
+                <option value="">-- Select Specialty --</option>
+                {specialties.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+          )}
 
           <div>
             <label className="block text-sm font-medium text-green-800 mb-1">Name</label>

@@ -5,7 +5,6 @@ const Doctor = require('../models/Doctor');
 // --- GET A DOCTOR's OWN PROFILE ---
 exports.getDoctorProfile = async (req, res) => {
   try {
-    // Find the doctor profile that is linked to the logged-in user's ID
     const doctorProfile = await Doctor.findOne({ user: req.user.id });
 
     if (!doctorProfile) {
@@ -28,7 +27,7 @@ exports.updateDoctorProfile = async (req, res) => {
       return res.status(404).json({ message: 'Doctor profile not found.' });
     }
 
-    // Update the fields with new data or keep the old data if nothing new is provided
+    // Update fields with new data, keeping old data if a field is not provided
     doctorProfile.name = name || doctorProfile.name;
     doctorProfile.specialty = specialty || doctorProfile.specialty;
     doctorProfile.experience = experience || doctorProfile.experience;

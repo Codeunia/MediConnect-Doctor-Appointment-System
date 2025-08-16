@@ -10,8 +10,8 @@ const doctorSchema = new mongoose.Schema({
   name: { type: String, required: true },
   specialty: { type: String, required: true },
   experience: { type: String, required: true },
-  location: { type: String, required: true },
-  image: { type: String, default: '' },
+  location: { type: String, default: 'N/A' }, // Default location
+  image: { type: String, default: '/images/doctor-placeholder.jpg' }, // Default image
   
   // --- START: NEW FIELDS ---
   phone: { 
@@ -20,7 +20,7 @@ const doctorSchema = new mongoose.Schema({
   },
   bio: { 
     type: String, 
-    default: 'A dedicated healthcare professional.' 
+    default: 'A dedicated healthcare professional. Please update your bio.' 
   },
   consultationHours: { 
     type: String, 

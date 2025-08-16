@@ -1,51 +1,39 @@
 const User = require('../models/User');
-const Doctor = require('../models/Doctor'); // Import the Doctor model
+const Doctor = require('../models/Doctor');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
-// Helper function to generate a JWT token
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: '7d' });
 };
 
-// --- REGISTER USER ---
 exports.register = async (req, res) => {
-  const { name, email, password, role } = req.body;
+  // We now expect 'specialty' from the frontend if the role is 'doctor'
+  const { name, email, password, role, specialty } = req.body;
 
   try {
-    // 1. Check if a user with this email already exists
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: 'User with this email already exists' });
     }
 
-    // 2. Create the new user in the 'users' collection
     const user = await User.create({ name, email, password, role });
 
-    // 3. Synchronize Doctor Profile
-    // If the new user's role is 'doctor', automatically create a default
-    // profile in the 'doctors' collection, linked to this user account.
+    // If the new user is a doctor, create their professional profile
     if (user && role === 'doctor') {
       await Doctor.create({
-        user: user._id, // This is the crucial link
+        user: user._id, // Link the user account to the doctor profile
         name: `Dr. ${user.name}`,
-        specialty: 'Please update specialty',
-        experience: 'Please update experience',
-        location: 'Please update location',
-        image: '/images/doctor-placeholder.jpg', // A default placeholder image
+        specialty: specialty || 'General Physician', // Use selected specialty or a default
+        experience: '0 years',
+        // Location and other fields will use the defaults from the Doctor model
       });
     }
 
-    // 4. Respond with a success message
     if (user) {
       res.status(201).json({
         message: 'User registered successfully!',
-        user: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        },
+        user: { _id: user._id, name: user.name, email: user.email, role: user.role },
         token: generateToken(user._id, user.role),
       });
     } else {
@@ -57,7 +45,6 @@ exports.register = async (req, res) => {
   }
 };
 
-// --- LOGIN USER ---
 exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
