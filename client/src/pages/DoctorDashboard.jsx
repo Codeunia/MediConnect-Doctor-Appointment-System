@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import API from '../api/axios';
-import AvailabilityManager from '../components/AvailabilityManager'; // Import the new component
+import AvailabilityManager from '../components/AvailabilityManager';
 
 export default function DoctorDashboard() {
   const [bookings, setBookings] = useState([]);
@@ -26,7 +26,6 @@ export default function DoctorDashboard() {
           setLoading(false);
         }
       } else {
-        // If the user is not a doctor, we don't need to fetch anything.
         setLoading(false);
       }
     };
@@ -47,7 +46,6 @@ export default function DoctorDashboard() {
     return <div className="text-center py-20 text-red-600">{error}</div>;
   }
   
-  // If a non-doctor somehow reaches this page, show a message.
   if (user?.role !== 'doctor') {
     return <div className="text-center py-20 text-red-600">Access Denied. This page is for doctors only.</div>;
   }
@@ -58,7 +56,6 @@ export default function DoctorDashboard() {
         <h1 className="text-3xl font-bold text-green-800 mb-2">Doctor Dashboard</h1>
         <p className="text-gray-600 mb-8">Welcome, Dr. {user?.name}. Here are your scheduled appointments.</p>
 
-        {/* --- Appointment List Table --- */}
         <div className="bg-white rounded-lg shadow-md border border-gray-200">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -90,7 +87,9 @@ export default function DoctorDashboard() {
                         {formatDate(booking.date)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {booking.time}
+                        {/* FIX: Display booking.time, but if it's missing (for old records), show 'N/A'.
+                        */}
+                        {booking.time || 'N/A'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -113,7 +112,6 @@ export default function DoctorDashboard() {
           </div>
         </div>
         
-        {/* --- Availability Management Component --- */}
         <AvailabilityManager />
 
       </div>

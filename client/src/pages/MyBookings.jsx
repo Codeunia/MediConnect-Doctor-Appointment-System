@@ -19,25 +19,29 @@ export default function MyBookings() {
         setLoading(true);
         setError('');
         
-        // Fetch all bookings from our new, single endpoint
         const { data } = await API.get('/api/bookings/mybookings');
 
         const validBookings = data.filter(booking => booking.doctor);
 
-        const now = new Date();
-        now.setHours(0, 0, 0, 0);
+        // --- START: MODIFIED LOGIC ---
+        const now = new Date(); // Get the current date and time
 
         const upcoming = [];
         const past = [];
 
         validBookings.forEach(booking => {
-          const appointmentDate = new Date(booking.date);
-          if (appointmentDate >= now) {
+          // Combine the booking date and time into a single, precise Date object
+          const datePart = new Date(booking.date).toISOString().split('T')[0];
+          const appointmentDateTime = new Date(`${datePart}T${booking.time}`);
+
+          // Compare the full appointment time with the current time
+          if (appointmentDateTime >= now) {
             upcoming.push(booking);
           } else {
             past.push(booking);
           }
         });
+        // --- END: MODIFIED LOGIC ---
 
         upcoming.sort((a, b) => new Date(a.date) - new Date(b.date));
 
@@ -57,7 +61,7 @@ export default function MyBookings() {
 
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+    return new Date(dateString).toLocaleDateDateString(undefined, options);
   };
 
   if (loading) {
