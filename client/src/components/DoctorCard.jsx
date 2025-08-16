@@ -22,13 +22,12 @@ export default function DoctorCard({ doctor }) {
         />
       </div>
       <div className="p-5 flex flex-col flex-grow">
-        {/* --- THIS IS THE CHANGE --- */}
-        {/* Display the name directly from the database */}
         <h3 className="text-xl font-semibold text-green-700">{doctor.name}</h3>
-        
         <p className="text-gray-600 font-medium">{doctor.specialty}</p>
         <p className="text-sm text-gray-500 mt-1">{doctor.experience} of experience</p>
         <p className="text-sm text-gray-500 mt-1">📍 {doctor.location}</p>
+        <p className="text-sm text-gray-500 mt-1">📞 {doctor.phone}</p>
+        <p className="text-sm text-gray-500 mt-1">⏰ {doctor.consultationHours}</p>
         
         <div className="mt-auto pt-4">
           <Link to="/appointments" state={{ doctor: doctor }}>
