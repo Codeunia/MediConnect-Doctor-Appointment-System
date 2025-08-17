@@ -2,19 +2,12 @@ const User = require('../models/User');
 const Doctor = require('../models/Doctor');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const { validationResult } = require('express-validator');
 
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: '7d' });
 };
 
 exports.register = async (req, res) => {
-  // Handle validation errors from authRoutes.js
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
   const { name, email, password, role, specialty } = req.body;
 
   try {
@@ -25,19 +18,22 @@ exports.register = async (req, res) => {
 
     const user = await User.create({ name, email, password, role });
 
-    // If the new user is a doctor, create their professional profile with 'pending' status
     if (user && role === 'doctor') {
+      // FIX: Intelligently add "Dr." prefix to prevent duplication like "Dr. Dr. Name"
+      const doctorName = user.name.toLowerCase().startsWith('dr.') 
+        ? user.name 
+        : `Dr. ${user.name}`;
+
       await Doctor.create({
         user: user._id,
-        name: `Dr. ${user.name}`,
+        name: doctorName,
         specialty: specialty || 'General Physician',
         experience: '0 years',
-        status: 'pending', // Doctors must be approved by an admin
+        status: 'pending', // MODIFIED: All new doctors are now pending approval
       });
     }
 
     if (user) {
-      // This part was missing from the previous update. It's now restored.
       res.status(201).json({
         message: 'User registered successfully!',
         user: { _id: user._id, name: user.name, email: user.email, role: user.role },
@@ -53,12 +49,6 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-    // Handle validation errors from authRoutes.js
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });

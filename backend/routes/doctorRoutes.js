@@ -6,7 +6,6 @@ const Doctor = require('../models/Doctor');
 
 const router = express.Router();
 
-// --- Doctor-specific routes (protected and role-restricted) ---
 router.route('/profile')
   .get(protect, isDoctor, getDoctorProfile)
   .put(protect, isDoctor, updateDoctorProfile);
@@ -16,7 +15,9 @@ router.get('/', async (req, res) => {
   try {
     const { name, specialty, location } = req.query;
     
-    const query = {};
+    // MODIFIED: This query now ONLY fetches doctors with 'approved' status
+    const query = { status: 'approved' };
+
     if (name) {
       query.name = { $regex: name, $options: 'i' };
     }
@@ -28,7 +29,6 @@ router.get('/', async (req, res) => {
     }
     
     const doctors = await Doctor.find(query);
-    
     res.json(doctors);
 
   } catch (error) {

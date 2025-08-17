@@ -10,10 +10,8 @@ const doctorSchema = new mongoose.Schema({
   name: { type: String, required: true },
   specialty: { type: String, required: true },
   experience: { type: String, required: true },
-  location: { type: String, default: 'N/A' }, // Default location
-  image: { type: String, default: '/images/doctor-placeholder.jpg' }, // Default image
-  
-  // --- START: NEW FIELDS ---
+  location: { type: String, default: 'N/A' },
+  image: { type: String, default: '/images/doctor-placeholder.jpg' },
   phone: { 
     type: String, 
     default: 'Not provided' 
@@ -26,7 +24,12 @@ const doctorSchema = new mongoose.Schema({
     type: String, 
     default: '10:00 AM - 05:00 PM' 
   },
-  // --- END: NEW FIELDS ---
+  // NEW: Status for admin approval workflow
+  status: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending',
+  },
 });
 
 module.exports = mongoose.model('Doctor', doctorSchema, 'doctors');
